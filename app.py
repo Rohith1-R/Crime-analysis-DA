@@ -2,38 +2,28 @@ import streamlit as st
 import joblib
 import pandas as pd
 
-st.set_page_config(
-    page_title="Crime Type Prediction",
-    page_icon="🚨"
-)
-
-# Load trained model and label encoder
+# Load model and target encoder
 model = joblib.load("random_forest.pkl")
 le = joblib.load("label_encoder.pkl")
 
 st.title("🚨 Crime Type Prediction")
 
-st.write("Enter the crime details to predict the crime type.")
+# Enter the feature values
+input_data = []
 
-# Model features
-features = model.feature_names_in_
+for feature in model.feature_names_in_:
+    value = st.number_input(feature, value=0.0)
+    input_data.append(value)
 
-input_data = {}
+# Prediction
+if st.button("Predict Crime Type"):
 
-for feature in features:
-    input_data[feature] = st.number_input(
-        feature,
-        value=0.0
-    )
-
-if st.button("🔮 Predict Crime Type"):
-
-    input_df = pd.DataFrame(
+    X_input = pd.DataFrame(
         [input_data],
-        columns=features
+        columns=model.feature_names_in_
     )
 
-    prediction = model.predict(input_df)
+    prediction = model.predict(X_input)
 
     crime_type = le.inverse_transform(prediction)[0]
 

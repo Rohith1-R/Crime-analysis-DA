@@ -2,29 +2,55 @@ import streamlit as st
 import joblib
 import pandas as pd
 
-# Load model and target encoder
+# Load PKL files
 model = joblib.load("random_forest.pkl")
 le = joblib.load("label_encoder.pkl")
 
-st.title("🚨 Crime Type Prediction")
+st.set_page_config(
+    page_title="LAPD Crime Prediction",
+    page_icon="🚨",
+    layout="wide"
+)
 
-# Enter the feature values
-input_data = []
+st.title("🚨 LAPD CRIME PREDICTION")
+st.markdown("### Predict Crime Category Using Random Forest")
 
-for feature in model.feature_names_in_:
-    value = st.number_input(feature, value=0.0)
-    input_data.append(value)
+st.divider()
+
+# Get model feature names
+features = model.feature_names_in_
+
+st.subheader("Enter Crime Details")
+
+input_data = {}
+
+cols = st.columns(3)
+
+for i, feature in enumerate(features):
+
+    with cols[i % 3]:
+
+        input_data[feature] = st.number_input(
+            feature,
+            value=0.0
+        )
 
 # Prediction
-if st.button("Predict Crime Type"):
+if st.button("🔮 Predict Crime", use_container_width=True):
 
-    X_input = pd.DataFrame(
+    input_df = pd.DataFrame(
         [input_data],
-        columns=model.feature_names_in_
+        columns=features
     )
 
-    prediction = model.predict(X_input)
+    prediction = model.predict(input_df)
 
-    crime_type = le.inverse_transform(prediction)[0]
+    predicted_crime = le.inverse_transform(prediction)[0]
 
-    st.success(f"Predicted Crime Type: {crime_type}")
+    st.success(
+        f"### Predicted Crime: {predicted_crime}"
+    )
+
+st.divider()
+
+st.caption("LAPD Crime Analysis | Random Forest | Streamlit")

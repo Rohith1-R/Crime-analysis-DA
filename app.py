@@ -2,55 +2,30 @@ import streamlit as st
 import joblib
 import pandas as pd
 
-# Load PKL files
 model = joblib.load("random_forest.pkl")
 le = joblib.load("label_encoder.pkl")
 
-st.set_page_config(
-    page_title="LAPD Crime Prediction",
-    page_icon="🚨",
-    layout="wide"
-)
+st.title("🚨 Crime Type Prediction")
 
-st.title("🚨 LAPD CRIME PREDICTION")
-st.markdown("### Predict Crime Category Using Random Forest")
+# 5 inputs
+age = st.number_input("Victim Age", 1, 100, 25)
+hour = st.number_input("Crime Hour", 0, 23, 12)
+area = st.number_input("Area Code", 1, 30, 1)
+victim_sex = st.number_input("Victim Sex", 0, 3, 0)
+premise = st.number_input("Premise Code", 0, 999, 0)
 
-st.divider()
+if st.button("🔮 Predict Crime Type"):
 
-# Get model feature names
-features = model.feature_names_in_
+    input_data = pd.DataFrame([[
+        age,
+        hour,
+        area,
+        victim_sex,
+        premise
+    ]])
 
-st.subheader("Enter Crime Details")
+    prediction = model.predict(input_data)
 
-input_data = {}
+    crime_type = le.inverse_transform(prediction)[0]
 
-cols = st.columns(3)
-
-for i, feature in enumerate(features):
-
-    with cols[i % 3]:
-
-        input_data[feature] = st.number_input(
-            feature,
-            value=0.0
-        )
-
-# Prediction
-if st.button("🔮 Predict Crime", use_container_width=True):
-
-    input_df = pd.DataFrame(
-        [input_data],
-        columns=features
-    )
-
-    prediction = model.predict(input_df)
-
-    predicted_crime = le.inverse_transform(prediction)[0]
-
-    st.success(
-        f"### Predicted Crime: {predicted_crime}"
-    )
-
-st.divider()
-
-st.caption("LAPD Crime Analysis | Random Forest | Streamlit")
+    st.success(f"Predicted Crime Type: **{crime_type}**")

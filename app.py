@@ -2,7 +2,7 @@ import streamlit as st
 import joblib
 import pandas as pd
 
-model = joblib.load("random_forest.pkl")
+model = joblib.load("random_forest_5features.pkl")
 le = joblib.load("label_encoder.pkl")
 
 st.title("🚨 Crime Type Prediction")
